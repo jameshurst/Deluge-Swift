@@ -2,16 +2,7 @@ import Combine
 import Deluge
 import XCTest
 
-class BadMethodTests: XCTestCase {
-    private var client: Deluge!
-    private var cancellables: Set<AnyCancellable>!
-
-    override func setUp() {
-        super.setUp()
-        client = Deluge(baseURL: TestConfig.serverURL, password: TestConfig.serverPassword)
-        cancellables = Set()
-    }
-
+class BadMethodTests: IntegrationTestCase {
     func test_badMethod() {
         let bad = Request<Void>(method: "bad", args: []) { response in
             XCTFail("Unexpected response: \(String(describing: response))")
@@ -22,17 +13,19 @@ class BadMethodTests: XCTestCase {
         client.request(bad)
             .sink(
                 receiveCompletion: { completion in
-                    defer { expectation.fulfill() }
-                    guard case let .failure(error) = completion, case .serverError = error else {
+                    if case let .failure(error) = completion, case .serverError = error {
+                        // success
+                    } else {
                         XCTFail("Expected failure")
-                        return
                     }
+
+                    expectation.fulfill()
                 },
                 receiveValue: { _ in
                     XCTFail("Should not receive value")
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 }

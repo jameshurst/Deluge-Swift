@@ -21,11 +21,13 @@ docker run \
     -v "$(pwd)/$ROOT/downloads:/downloads" \
     linuxserver/deluge
 
-set +e
+sleep 5
 
-swift test --filter DelugeIntegrationTests
+swift test --filter DelugeIntegrationTests && RC=$? || RC=$?
 
 docker container stop DelugeIntegrationTests
 docker container rm DelugeIntegrationTests
 
 git checkout $ROOT
+
+exit $RC

@@ -2,16 +2,7 @@ import Combine
 import Deluge
 import XCTest
 
-class LabelRequestsTests: XCTestCase {
-    private var client: Deluge!
-    private var cancellables: Set<AnyCancellable>!
-
-    override func setUp() {
-        super.setUp()
-        client = Deluge(baseURL: TestConfig.serverURL, password: TestConfig.serverPassword)
-        cancellables = Set()
-    }
-
+class LabelRequestsTests: IntegrationTestCase {
     func test_setLabel() {
         let url = urlForResource(named: TestConfig.torrent1)
         let expectation = self.expectation(description: #function)
@@ -30,6 +21,6 @@ class LabelRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 }

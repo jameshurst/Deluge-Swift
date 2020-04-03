@@ -2,16 +2,7 @@ import Combine
 import Deluge
 import XCTest
 
-class WebRequestsTests: XCTestCase {
-    private var client: Deluge!
-    private var cancellables: Set<AnyCancellable>!
-
-    override func setUp() {
-        super.setUp()
-        client = Deluge(baseURL: TestConfig.serverURL, password: TestConfig.serverPassword)
-        cancellables = Set()
-    }
-
+class WebRequestsTests: IntegrationTestCase {
     func test_updateUI() {
         let url = urlForResource(named: TestConfig.torrent1)
         let expectation = self.expectation(description: #function)
@@ -48,7 +39,7 @@ class WebRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_torrentItems() {
@@ -75,6 +66,6 @@ class WebRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 }

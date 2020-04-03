@@ -130,4 +130,18 @@ public extension Request {
     static func resume(hashes: [String]) -> Request<Void> {
         .init(method: "core.resume_torrents", args: [hashes])
     }
+
+    /// Sets options for torrents with the given hashes.
+    ///
+    /// RPC Method: `core.set_torrent_options`
+    ///
+    /// - Parameters:
+    ///   - hashes: The torrent hashes to update.
+    ///   - options: The options to set on the torrents.
+    static func setOptions(hashes: [String], options: [TorrentOption]) -> Request<Void> {
+        .init(method: "core.set_torrent_options", args: [
+            hashes,
+            options.reduce(into: [String: Any]()) { $0[$1.key] = $1.value },
+        ])
+    }
 }

@@ -10,10 +10,12 @@ public struct Priority: RawRepresentable, Equatable, Hashable {
 }
 
 public extension Priority {
-    /// The low priority value. This has the `rawValue` of `1`.
+    /// The priority at which items are not downloaded. This has a `rawValue` of `0`.
+    static let disabled = Priority(rawValue: 0)
+    /// The low priority value. This has a `rawValue` of `1`.
     static let low = Priority(rawValue: 1)
-    /// The normal priority value. This has the `rawValue` of `4`.
+    /// The normal priority value. This has a `rawValue` of `4`.
     static let normal = Priority(rawValue: 4)
-    /// The high priority value. This has the `rawValue` of `7`.
+    /// The high priority value. This has a `rawValue` of `7`.
     static let high = Priority(rawValue: 7)
 }

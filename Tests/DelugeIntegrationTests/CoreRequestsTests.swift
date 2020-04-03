@@ -2,16 +2,7 @@ import Combine
 import Deluge
 import XCTest
 
-class CoreRequestsTests: XCTestCase {
-    private var client: Deluge!
-    private var cancellables: Set<AnyCancellable>!
-
-    override func setUp() {
-        super.setUp()
-        client = Deluge(baseURL: TestConfig.serverURL, password: TestConfig.serverPassword)
-        cancellables = Set()
-    }
-
+class CoreRequestsTests: IntegrationTestCase {
     func test_addFileURL() {
         let url = urlForResource(named: TestConfig.torrent2)
         let expectation = self.expectation(description: #function)
@@ -30,7 +21,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_addFileURLs() {
@@ -53,7 +44,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_addMagnetURL() {
@@ -74,7 +65,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_addURL() {
@@ -115,7 +106,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_recheck() {
@@ -136,7 +127,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_move() {
@@ -157,7 +148,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_removeTorrents_error() {
@@ -178,7 +169,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_pause() {
@@ -199,7 +190,7 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 
     func test_resume() {
@@ -220,6 +211,6 @@ class CoreRequestsTests: XCTestCase {
                 }
             )
             .store(in: &cancellables)
-        waitForExpectations(timeout: 1)
+        waitForExpectations(timeout: TestConfig.timeout)
     }
 }

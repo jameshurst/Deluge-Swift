@@ -2,11 +2,18 @@ import Combine
 import Deluge
 import XCTest
 
-class AuthRequestsTests: IntegrationTestCase {
-    func test_authenticate() {
+class SetOptionTests: IntegrationTestCase {
+    func test_filePriorities() {
+        let url = urlForResource(named: TestConfig.torrent1)
         let expectation = self.expectation(description: #function)
         expectation.expectedFulfillmentCount = 2
-        client.request(.authenticate)
+        ensureTorrentAdded(fileURL: url, to: client)
+            .flatMap { _ in
+                self.client.request(.setOptions(
+                    hashes: [TestConfig.torrent1Hash],
+                    options: [.filePriorities([.disabled])]
+                ))
+            }
             .sink(
                 receiveCompletion: { completion in
                     if case let .failure(error) = completion {
