@@ -7,7 +7,7 @@ public extension Request {
     ///
     /// - Parameter properties: The torrent properties to include.
     static func updateUI(properties: [Torrent.PropertyKeys]) -> Request<(torrents: [Torrent], labels: [Label])> {
-        .init(method: "web.update_ui", args: [properties.map { $0.rawValue }, []], transform: parseUpdateUIResponse)
+        .init(method: "web.update_ui", args: [properties.map(\.rawValue), []], transform: parseUpdateUIResponse)
     }
 
     /// Requests the list of items for a torrent.
