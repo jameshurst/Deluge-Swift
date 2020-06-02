@@ -33,7 +33,7 @@ extension TorrentFile {
         guard let index = dictionary["index"] as? Int,
             let path = dictionary["path"] as? String,
             let size = dictionary["size"] as? Int64,
-            let progress = dictionary["progress"] as? Float,
+            let progress = (dictionary["progress"] as? Double).map(Float.init),
             let priority = dictionary["priority"] as? Int
         else {
             return nil
