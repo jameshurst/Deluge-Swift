@@ -31,30 +31,7 @@ public final class Deluge {
             .eraseToAnyPublisher()
     }
 
-    /// Attempts to create a `URLRequest` from a `Request`.
-    /// - Parameter request: The request definition to be converted in to a `URLRequest`.
-    /// - Returns: A `Result` containing either the created `URLRequest` or an error if the request was unable to be
-    /// serialized to JSON.
-    private func urlRequest<Value>(from request: Request<Value>) -> Result<URLRequest, DelugeError> {
-        let url = baseURL.appendingPathComponent("json")
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = "POST"
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        do {
-            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: [
-                "id": 1,
-                "method": request.method,
-                "params": request.args,
-            ], options: [])
-        } catch {
-            return .failure(.encoding(error))
-        }
-
-        return .success(urlRequest)
-    }
-
-    /// Sends a `URLRequest` optionally handling authentication.
+    /// Sends a request to the server, optionally handling authentication.
     ///
     /// - Parameters:
     ///   - request: The request to be sent to the server.
@@ -80,6 +57,29 @@ public final class Deluge {
             .flatMap(decode(data:response:))
             .catch(retryIfNeeded)
             .eraseToAnyPublisher()
+    }
+
+    /// Attempts to create a `URLRequest` from a `Request`.
+    /// - Parameter request: The request definition to be converted in to a `URLRequest`.
+    /// - Returns: A `Result` containing either the created `URLRequest` or an error if the request was unable to be
+    /// serialized to JSON.
+    private func urlRequest<Value>(from request: Request<Value>) -> Result<URLRequest, DelugeError> {
+        let url = baseURL.appendingPathComponent("json")
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: [
+                "id": 1,
+                "method": request.method,
+                "params": request.args,
+            ], options: [])
+        } catch {
+            return .failure(.encoding(error))
+        }
+
+        return .success(urlRequest)
     }
 
     /// Attempts to decode a server response in to a dictionary.
