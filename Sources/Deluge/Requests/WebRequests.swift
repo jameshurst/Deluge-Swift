@@ -28,7 +28,7 @@ private extension Request {
     /// - Returns: The list of labels or an empty array if the response could not be parsed.
     static func parseLabels(from response: [String: Any]) -> [Label] {
         guard let filters = response["filters"] as? [String: Any],
-            let labels = filters["label"] as? [[AnyObject]]
+              let labels = filters["label"] as? [[AnyObject]]
         else {
             return []
         }
@@ -50,7 +50,7 @@ private extension Request {
         _ response: [String: Any]
     ) -> Result<(torrents: [Torrent], labels: [Label]), DelugeError> {
         guard let results = response["result"] as? [String: Any],
-            let torrents = results["torrents"] as? [String: [String: Any]]
+              let torrents = results["torrents"] as? [String: [String: Any]]
         else {
             return .failure(.unexpectedResponse)
         }
@@ -65,7 +65,7 @@ private extension Request {
     /// not be parsed.
     private static func parseTorrentFilesResponse(_ response: [String: Any]) -> Result<[TorrentItem], DelugeError> {
         guard let results = response["result"] as? [String: Any],
-            let contents = results["contents"] as? [String: [String: Any]]
+              let contents = results["contents"] as? [String: [String: Any]]
         else {
             return .failure(.unexpectedResponse)
         }
