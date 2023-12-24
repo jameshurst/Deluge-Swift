@@ -1,25 +1,42 @@
 import Combine
 import Foundation
 
+public struct BasicAuthentication: Equatable, Codable {
+    public let username: String
+    public let password: String
+
+    public init(username: String, password: String) {
+        self.username = username
+        self.password = password
+    }
+
+    var encoded: String? {
+        "\(username):\(password)"
+            .data(using: .utf8)?
+            .base64EncodedString()
+    }
+}
+
 /// A Deluge JSON-RPC API client.
 public final class Deluge {
     /// The `URLSession` to use for requests.
-    private lazy var session: URLSession = {
-        URLSession.shared
-    }()
+    private lazy var session: URLSession = { .shared }()
 
     /// The URL of the Deluge server.
     let baseURL: URL
     /// The password used for authentication.
     let password: String
+    /// Basic authentication to be added to Authorization header
+    let basicAuthentication: BasicAuthentication?
 
     /// Creates a Deluge client to interact with the given server URL.
     /// - Parameters:
     ///   - baseURL: The URL of the Deluge server.
     ///   - password: The password used for authentication.
-    public init(baseURL: URL, password: String) {
+    public init(baseURL: URL, password: String, basicAuthentication: BasicAuthentication? = nil) {
         self.baseURL = baseURL
         self.password = password
+        self.basicAuthentication = basicAuthentication
     }
 
     /// Sends a request to the server.
@@ -77,6 +94,14 @@ public final class Deluge {
             ], options: [])
         } catch {
             return .failure(.encoding(error))
+        }
+
+        if let basicAuthentication {
+            guard let encodedAuthentication =  basicAuthentication.encoded else {
+                return .failure(.unauthenticated)
+            }
+
+            urlRequest.setValue("Basic \(encodedAuthentication)", forHTTPHeaderField: "Authorization")
         }
 
         return .success(urlRequest)
