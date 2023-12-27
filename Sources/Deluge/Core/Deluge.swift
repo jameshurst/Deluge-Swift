@@ -1,26 +1,10 @@
 import Combine
 import Foundation
 
-public struct BasicAuthentication: Equatable, Codable {
-    public let username: String
-    public let password: String
-
-    public init(username: String, password: String) {
-        self.username = username
-        self.password = password
-    }
-
-    var encoded: String? {
-        "\(username):\(password)"
-            .data(using: .utf8)?
-            .base64EncodedString()
-    }
-}
-
 /// A Deluge JSON-RPC API client.
 public final class Deluge {
     /// The `URLSession` to use for requests.
-    private lazy var session: URLSession = { .shared }()
+    private lazy var session: URLSession = .shared
 
     /// The URL of the Deluge server.
     let baseURL: URL
@@ -97,7 +81,7 @@ public final class Deluge {
         }
 
         if let basicAuthentication {
-            guard let encodedAuthentication =  basicAuthentication.encoded else {
+            guard let encodedAuthentication = basicAuthentication.encoded else {
                 return .failure(.unauthenticated)
             }
 
@@ -134,5 +118,23 @@ public final class Deluge {
         }
 
         return Just(dict).setFailureType(to: DelugeError.self).eraseToAnyPublisher()
+    }
+}
+
+public extension Deluge {
+    struct BasicAuthentication: Equatable, Codable {
+        public let username: String
+        public let password: String
+
+        public init(username: String, password: String) {
+            self.username = username
+            self.password = password
+        }
+
+        var encoded: String? {
+            "\(username):\(password)"
+                .data(using: .utf8)?
+                .base64EncodedString()
+        }
     }
 }

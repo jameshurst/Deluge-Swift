@@ -10,9 +10,9 @@ public struct Request<Value> {
     /// Transforms the server response in to a new representation.
     public var transform: ([String: Any]) -> Result<Value, DelugeError>
     /// Whether authentication should be attempted if the server indicates that the client is unauthenticated.
-    internal var authenticateIfNeeded: Bool
+    var authenticateIfNeeded: Bool
     /// Creates a new version of the request using information from the client.
-    internal var prepare: (Self, Deluge) -> Self
+    var prepare: (Self, Deluge) -> Self
 
     /// Creates a request with internal properties.
     /// - Parameters:
@@ -22,7 +22,7 @@ public struct Request<Value> {
     ///    client is unauthenticated.
     ///   - prepare: Creates a new version of the request using information from the client.
     ///   - transform: Transforms the server response in to a new representation.
-    internal init(
+    init(
         method: String,
         args: [Any],
         authenticateIfNeeded: Bool = true,
