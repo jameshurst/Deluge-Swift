@@ -10,7 +10,7 @@ public final class Deluge {
     let baseURL: URL
     /// The password used for authentication.
     let password: String
-    /// Basic authentication to be added to Authorization header
+    /// Basic authentication to be added to Authorization header.
     let basicAuthentication: BasicAuthentication?
 
     /// Creates a Deluge client to interact with the given server URL.
