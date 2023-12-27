@@ -5,7 +5,7 @@ set -eu
 unset SDKROOT
 
 REPO="https://github.com/yonaskolb/Mint.git"
-VERSION="0.14.2"
+VERSION="0.17.5"
 EXECUTABLE_NAME="mint"
 
 TOOLS_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
