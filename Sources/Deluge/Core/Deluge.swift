@@ -196,7 +196,7 @@ extension Deluge {
     }
 
     private func isTorrentAlreadyAddedException(message: String?) -> Bool {
-        // There is a bug in deluge that adding an already added torrent will return a stacktrace of a python exception...
+        // There is a bug in deluge that adding a torrent that exists will return a stacktrace of a python exception...
         // Yes really... so instead we'll just try to add the same torrents as the combine test and ignore the error
         // if it looks like the addtorrent exception
         // https://dev.deluge-torrent.org/ticket/3507
