@@ -21,4 +21,8 @@ class AuthRequestsTests: IntegrationTestCase {
             .store(in: &cancellables)
         waitForExpectations(timeout: TestConfig.timeout)
     }
+
+    func test_authenticate_concurrency() async throws {
+        try await client.request(.authenticate)
+    }
 }

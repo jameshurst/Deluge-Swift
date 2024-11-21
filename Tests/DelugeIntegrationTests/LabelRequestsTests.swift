@@ -23,4 +23,10 @@ class LabelRequestsTests: IntegrationTestCase {
             .store(in: &cancellables)
         waitForExpectations(timeout: TestConfig.timeout)
     }
+
+    func test_setLabel_concurrency() async throws {
+        let url = urlForResource(named: TestConfig.torrent1)
+        try await ensureTorrentAdded(fileURL: url, to: client)
+        try await client.request(.setLabel(hash: TestConfig.torrent1Hash, label: ""))
+    }
 }

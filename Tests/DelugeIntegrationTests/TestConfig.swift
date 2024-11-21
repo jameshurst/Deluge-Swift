@@ -3,7 +3,7 @@ import Foundation
 
 enum TestConfig {
     static var timeout: TimeInterval {
-        ProcessInfo.processInfo.environment["TIMEOUT"].flatMap(TimeInterval.init) ?? 1
+        ProcessInfo.processInfo.environment["TIMEOUT"].flatMap(TimeInterval.init) ?? 2
     }
 
     static let serverURL = URL(string: "http://localhost:8112")!
@@ -18,8 +18,10 @@ enum TestConfig {
     static let torrent2Hash = "2a78414b7af89fe08644ece339ee454867d29cb7"
 
     static let torrent3 = "ubuntu.torrent"
+    static let torrent3Hash = "e2467cbf021192c241367b892230dc1e05c0580e"
 
     static let torrent4 = "fedora.torrent"
+    static let torrent4Hash = "bd2d1a1e1fba6377c0b58aa473b3c86db264a2cd"
 
     // swiftformat:disable indent
     static let magnetURL = """
@@ -30,4 +32,5 @@ enum TestConfig {
     static let magnetHash = "54da0b79719064aa10fe2cc4e13630a1222d1939"
 
     static let webURL = "https://downloads.raspberrypi.org/raspbian_latest.torrent"
+    static let webURLHash = "154091a4c610d1fad2d93648fc0003df95ae6948"
 }

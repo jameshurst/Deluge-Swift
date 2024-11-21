@@ -8,10 +8,14 @@ public enum DelugeError: Error {
     case decoding(Error)
     /// A request error occurred.
     case request(URLError)
+    /// An unknown request error occurred.
+    case unknownRequestError(Error)
     /// The provided authentication was not valid.
     case unauthenticated
     /// The server returned an unexpected response.
     case unexpectedResponse
     /// The server returned an error message.
     case serverError(message: String?)
+    /// The server already has this torrent - this is a bug in deluge
+    case torrentAlreadyAddedException
 }

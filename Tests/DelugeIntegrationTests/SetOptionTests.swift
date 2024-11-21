@@ -28,4 +28,13 @@ class SetOptionTests: IntegrationTestCase {
             .store(in: &cancellables)
         waitForExpectations(timeout: TestConfig.timeout)
     }
+
+    func test_filePriorities_concurrency() async throws {
+        let url = urlForResource(named: TestConfig.torrent1)
+        try await ensureTorrentAdded(fileURL: url, to: client)
+        try await client.request(.setOptions(
+            hashes: [TestConfig.torrent1Hash],
+            options: [.filePriorities([.disabled])]
+        ))
+    }
 }
