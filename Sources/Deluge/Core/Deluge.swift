@@ -23,7 +23,7 @@ public final class Deluge {
         self.basicAuthentication = basicAuthentication
     }
 
-        /// Attempts to create a `URLRequest` from a `Request`.
+    /// Attempts to create a `URLRequest` from a `Request`.
     /// - Parameter request: The request definition to be converted in to a `URLRequest`.
     /// - Returns: A `Result` containing either the created `URLRequest` or an error if the request was unable to be
     /// serialized to JSON.
@@ -129,9 +129,9 @@ extension Deluge {
     /// Sends a request to the server.
     /// - Parameter request: The request to be sent to the server.
     /// - Returns: A publisher that emits a value when the request completes.
-    public func request<Value>(_ request: Request<Value>) async throws(DelugeError) -> Value {
+    public func request<Value>(_ request: Request<Value>) async throws (DelugeError) -> Value {
         try request.transform(
-            try await send(
+            await send(
                 request: request.prepare(request, self),
                 authenticateIfNeeded: true
             )
@@ -148,7 +148,7 @@ extension Deluge {
     private func send<Value>(
         request: Request<Value>,
         authenticateIfNeeded: Bool
-    ) async throws(DelugeError) -> [String: Any] {
+    ) async throws (DelugeError) -> [String: Any] {
         do {
             let (data, response) = try await session.data(for: urlRequest(from: request).get())
             return try decode(data: data, response: response)
@@ -172,7 +172,7 @@ extension Deluge {
     ///   - response: The `URLResponse` describing the server response.
     /// - Throws: A `DelugeError` if the response is malformed or contains an error.
     /// - Returns: The decoded dictionary.
-    private func decode(data: Data, response: URLResponse) throws(DelugeError) -> [String: Any] {
+    private func decode(data: Data, response: URLResponse) throws (DelugeError) -> [String: Any] {
         let dict: [String: Any]
         do {
             dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
@@ -208,7 +208,7 @@ extension Deluge {
             // "<class 'deluge.error.AddTorrentError'>: Torrent already in session",
             "Torrent already in session",
             // "<class 'deluge.error.WrappedException'>: type <class 'deluge.error.AddTorrentError'> not handled",
-            "deluge.error.AddTorrentError"
+            "deluge.error.AddTorrentError",
         ]
 
         return parts.map { message.contains($0) }.contains(true)

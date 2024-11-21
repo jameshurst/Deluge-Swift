@@ -12,7 +12,7 @@ class CoreRequestsTests: IntegrationTestCase {
             .sink(
                 receiveCompletion: { completion in
                     if case let .failure(error) = completion {
-                       XCTFail(String(describing: error))
+                        XCTFail(String(describing: error))
                     }
                     expectation.fulfill()
                 },
