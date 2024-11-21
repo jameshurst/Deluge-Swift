@@ -18,7 +18,7 @@ func ensureTorrentAdded(fileURL: URL, to client: Deluge) -> AnyPublisher<Void, D
         .eraseToAnyPublisher()
 }
 
-// TODO: tests that use this may stomp each other - figure out how to fix that (or switch to swift testing???)
+// When migrated to Swift Testing: tests that use this may stomp each other - figure out how to fix that (or switch to swift testing???)
 func ensureTorrentRemoved(hash: String, from client: Deluge) -> AnyPublisher<Void, DelugeError> {
     client.request(.remove(hashes: [hash], removeData: false))
         .map { _ in () }
