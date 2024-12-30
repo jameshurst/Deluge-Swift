@@ -23,7 +23,12 @@ public extension Request {
         .init(method: "web.get_torrent_files", args: [hash], transform: parseTorrentFilesResponse)
     }
 
-    static func connected() -> Request<Bool> {
+    /// Requests the connection status of the Deluge daemon.
+    ///
+    /// RPC Method: `web.connected`
+    ///
+    /// Result: A boolean indicating whether the Deluge daemon is currently connected.
+    static var connected: Request<Bool> {
         .init(method: "web.connected", args: []) { results in
             if let connected = results["result"] as? Bool {
                 return .success(connected)
@@ -33,10 +38,20 @@ public extension Request {
         }
     }
 
+    /// Requests the list of hosts.
+    ///
+    /// RPC Method: `web.get_hosts`
+    ///
+    /// Result: The list of hosts.
     static var hosts: Request<[Host]> {
         .init(method: "web.get_hosts", args: [], transform: parseHosts)
     }
 
+    /// Connects to a given host.
+    ///
+    /// RPC Method: `web.connect`
+    ///
+    /// - Parameter hostID: The ID of the host to connect to.
     static func connect(to hostID: Host.ID) -> Request<Void> {
         .init(method: "web.connect", args: [hostID])
     }

@@ -165,8 +165,9 @@ extension Deluge {
             case .unconnected:
                 // Make a connection
                 let hosts = try await self.request(.hosts)
-                // TODO: it's better to throw this error to the caller and have them handle connect flow?
-                guard let host = hosts.first else {
+                // If there's a single host: auto-connect
+                // If there's more than one: throw to the caller to handle host selection & connection
+                guard hosts.count == 1, let host = hosts.first else {
                     throw error
                 }
 
@@ -206,13 +207,9 @@ extension Deluge {
             }
 
             throw .serverError(message: error["message"] as? String)
-        } else if dict["error"] != nil {
+        } else if dict["error"] != nil, let result = dict["result"] as? [String: Any] {
             // Check if there is an active deluge connection
-            if
-                let result = dict["result"] as? [String: Any],
-                let connected = result["connected"] as? Bool,
-                connected == false
-            {
+            if let connected = result["connected"] as? Bool, connected == false {
                 throw .unconnected
             }
         }
