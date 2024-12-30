@@ -1,3 +1,5 @@
+import Foundation
+
 public extension Request {
     /// Requests the information required to update the web interface.
     ///
@@ -20,9 +22,50 @@ public extension Request {
     static func torrentItems(hash: String) -> Request<[TorrentItem]> {
         .init(method: "web.get_torrent_files", args: [hash], transform: parseTorrentFilesResponse)
     }
+
+    static func connected() -> Request<Bool> {
+        .init(method: "web.connected", args: []) { results in
+            if let connected = results["result"] as? Bool {
+                return .success(connected)
+            }
+
+            return .failure(.unexpectedResponse)
+        }
+    }
+
+    static var hosts: Request<[Host]> {
+        .init(method: "web.get_hosts", args: [], transform: parseHosts)
+    }
+
+    static func connect(to hostID: Host.ID) -> Request<Void> {
+        .init(method: "web.connect", args: [hostID])
+    }
 }
 
 private extension Request {
+    /// Parses the hosts out of a `web.get_hosts` response
+    /// - Parameter response: The response dictionary.
+    /// - Returns: A `Result` containing either the list of hosts, or a `DelugeError` if the response
+    /// dictionary could not be parsed
+    static func parseHosts(from response: [String: Any]) -> Result<[Host], DelugeError> {
+        guard let result = response["result"] as? [[Any]] else { return .failure(.unexpectedResponse) }
+
+        return .success(result.compactMap { hostElements -> Host? in
+            guard hostElements.count == 4 else { return nil }
+
+            guard
+                let id = hostElements[0] as? String,
+                let address = hostElements[1] as? String,
+                let port = hostElements[2] as? Int,
+                let name = hostElements[3] as? String
+            else { return nil }
+
+            guard let url = URL(string: address) else { return nil }
+
+            return Host(id: id, hostURL: url, port: port, name: name)
+        })
+    }
+
     /// Parses the labels out of a `web.update_ui` response.
     /// - Parameter response: The response dictionary.
     /// - Returns: The list of labels or an empty array if the response could not be parsed.

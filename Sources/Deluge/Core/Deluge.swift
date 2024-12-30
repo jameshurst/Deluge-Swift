@@ -2,16 +2,16 @@ import Combine
 import Foundation
 
 /// A Deluge JSON-RPC API client.
-public final class Deluge {
+public final class Deluge: Codable {
     /// The `URLSession` to use for requests.
     private lazy var session: URLSession = .shared
 
     /// The URL of the Deluge server.
-    let baseURL: URL
+    public let baseURL: URL
     /// The password used for authentication.
-    let password: String
+    public let password: String
     /// Basic authentication to be added to Authorization header.
-    let basicAuthentication: BasicAuthentication?
+    public let basicAuthentication: BasicAuthentication?
 
     /// Creates a Deluge client to interact with the given server URL.
     /// - Parameters:
@@ -151,14 +151,30 @@ extension Deluge {
     ) async throws (DelugeError) -> [String: Any] {
         do {
             let (data, response) = try await session.data(for: urlRequest(from: request).get())
-            return try decode(data: data, response: response)
+            let decodedData: [String: Any] = try decode(data: data, response: response)
+            return decodedData
         } catch let error as DelugeError {
-            guard case .unauthenticated = error, authenticateIfNeeded else {
+            switch error {
+            case .unauthenticated:
+                if authenticateIfNeeded {
+                    try await self.request(.authenticate)
+                    return try await send(request: request, authenticateIfNeeded: false)
+                } else {
+                    throw error
+                }
+            case .unconnected:
+                // Make a connection
+                let hosts = try await self.request(.hosts)
+                // TODO: it's better to throw this error to the caller and have them handle connect flow?
+                guard let host = hosts.first else {
+                    throw error
+                }
+
+                try await self.request(.connect(to: host.id))
+                return try await send(request: request, authenticateIfNeeded: false)
+            default:
                 throw error
             }
-
-            try await self.request(.authenticate)
-            return try await send(request: request, authenticateIfNeeded: false)
         } catch let error as URLError {
             throw .request(error)
         } catch {
@@ -190,6 +206,15 @@ extension Deluge {
             }
 
             throw .serverError(message: error["message"] as? String)
+        } else if dict["error"] != nil {
+            // Check if there is an active deluge connection
+            if
+                let result = dict["result"] as? [String: Any],
+                let connected = result["connected"] as? Bool,
+                connected == false
+            {
+                throw .unconnected
+            }
         }
 
         return dict

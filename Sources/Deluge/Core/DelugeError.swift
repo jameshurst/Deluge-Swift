@@ -18,4 +18,6 @@ public enum DelugeError: Error {
     case serverError(message: String?)
     /// The server already has this torrent - this is a bug in deluge
     case torrentAlreadyAddedException
+    /// The server is up, but no host is connected
+    case unconnected
 }
