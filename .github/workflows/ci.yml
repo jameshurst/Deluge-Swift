@@ -21,9 +21,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          tools/.bin
-          tools/.mint
-        key: ${{ runner.os }}-${{ hashFiles('tools/mint') }}-${{ hashFiles('Mintfile') }}
+            .tools/.bin
+        key: ${{ runner.os }}-${{ hashFiles('tools/*.sh') }}
 
     - name: Run CI script
       run: ./scripts/run_ci.sh

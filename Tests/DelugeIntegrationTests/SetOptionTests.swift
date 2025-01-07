@@ -1,33 +1,38 @@
-import Combine
 import Deluge
 import XCTest
 
+#if canImport(Combine)
+    import Combine
+#endif
+
 class SetOptionTests: IntegrationTestCase {
-    func test_filePriorities() {
-        let url = urlForResource(named: TestConfig.torrent1)
-        let expectation = self.expectation(description: #function)
-        expectation.expectedFulfillmentCount = 2
-        ensureTorrentAdded(fileURL: url, to: client)
-            .flatMap { _ in
-                self.client.request(.setOptions(
-                    hashes: [TestConfig.torrent1Hash],
-                    options: [.filePriorities([.disabled])]
-                ))
-            }
-            .sink(
-                receiveCompletion: { completion in
-                    if case let .failure(error) = completion {
-                        XCTFail(String(describing: error))
-                    }
-                    expectation.fulfill()
-                },
-                receiveValue: { _ in
-                    expectation.fulfill()
+    #if canImport(Combine)
+        func test_filePriorities() {
+            let url = urlForResource(named: TestConfig.torrent1)
+            let expectation = self.expectation(description: #function)
+            expectation.expectedFulfillmentCount = 2
+            ensureTorrentAdded(fileURL: url, to: client)
+                .flatMap { _ in
+                    self.client.request(.setOptions(
+                        hashes: [TestConfig.torrent1Hash],
+                        options: [.filePriorities([.disabled])]
+                    ))
                 }
-            )
-            .store(in: &cancellables)
-        waitForExpectations(timeout: TestConfig.timeout)
-    }
+                .sink(
+                    receiveCompletion: { completion in
+                        if case let .failure(error) = completion {
+                            XCTFail(String(describing: error))
+                        }
+                        expectation.fulfill()
+                    },
+                    receiveValue: { _ in
+                        expectation.fulfill()
+                    }
+                )
+                .store(in: &cancellables)
+            waitForExpectations(timeout: TestConfig.timeout)
+        }
+    #endif
 
     func test_filePriorities_concurrency() async throws {
         let url = urlForResource(named: TestConfig.torrent1)

@@ -2,6 +2,6 @@
 .swiftpm/
 xcuserdata/
 *.xcodeproj
-tools/.bin/
-tools/.mint/
 scripts/.integration-test/
+tools/.bin/
+tools/.checkout/

@@ -2,4 +2,4 @@
 set -eu
 
 cd "$(dirname "$(realpath "$0")")/../"
-tools/swiftformat.sh Package.swift Sources Tests "$@"
+tools/swiftlint.sh Package.swift Sources Tests "$@"
