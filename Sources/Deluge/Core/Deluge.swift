@@ -142,7 +142,7 @@ extension Deluge {
         authenticateIfNeeded: Bool
     ) async throws (DelugeError) -> [String: Any] {
         let urlRequest = try urlRequest(from: request).get()
-        
+
         let data: Data
         let response: URLResponse
         do {
@@ -152,7 +152,7 @@ extension Deluge {
         } catch {
             throw .request(.unknown(error))
         }
-        
+
         do {
             return try decode(data: data, response: response)
         } catch {

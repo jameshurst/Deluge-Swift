@@ -16,8 +16,10 @@ public enum DelugeError: Error {
 
 /// An error that occurred during a network request.
 public enum DelugeRequestError {
+    /// A typed `URLError`.
     case urlError(URLError)
     // Needed because `URLSession.data(for:)` throws `any Error`, sigh...
+    /// An untyped `Error`.
     case unknown(Error)
 }
 
@@ -33,23 +35,26 @@ public enum DelugeServerError {
 
 extension DelugeServerError {
     static func fromAPIError(_ error: [String: Any]) -> Self {
-            switch (error["code"] as? Int).map(DelugeErrorCode.init) {
-            case .unauthenticated:
-                return .unauthenticated
-            case .rpcRequestErrorAsync:
-                // There is a bug in deluge that adding a torrent that exists will return a stacktrace of a python exception.
-                // https://dev.deluge-torrent.org/ticket/3507
-                if let message = error["message"] as? String {
-                    if message.contains("<class \'deluge.error.AddTorrentError\'>: Torrent already in session") {
-                        return .torrentAlreadyInSession
-                    }
+        switch (error["code"] as? Int).map(DelugeErrorCode.init) {
+        case .unauthenticated:
+            return .unauthenticated
+        case .rpcRequestErrorAsync:
+            // There is a bug in deluge that adding a torrent that exists will return a stacktrace of a python
+            // exception.
+            // https://dev.deluge-torrent.org/ticket/3507
+            if let message = error["message"] as? String {
+                if message.contains("<class \'deluge.error.AddTorrentError\'>: Torrent already in session") {
+                    return .torrentAlreadyInSession
                 }
-            case _: break
+            }
+        case _:
+            break
         }
-        
+
         return .message(error["message"] as? String)
     }
 }
+
 /// Error codes returned by the Deluge JSON-RPC API.
 ///
 /// See [deluge/ui/web/json_api.py](https://github.com/deluge-torrent/deluge/blob/develop/deluge/ui/web/json_api.py)
