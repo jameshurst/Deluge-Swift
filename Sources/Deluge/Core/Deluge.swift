@@ -74,7 +74,7 @@ extension Deluge {
         authenticateIfNeeded: Bool
     ) -> AnyPublisher<[String: Any], DelugeError> {
         let retryIfNeeded = { (error: DelugeError) -> AnyPublisher<[String: Any], DelugeError> in
-            guard case .unauthenticated = error, authenticateIfNeeded else {
+            guard case .serverError(.unauthenticated) = error, authenticateIfNeeded else {
                 return Fail(error: error).eraseToAnyPublisher()
             }
 
@@ -84,7 +84,7 @@ extension Deluge {
         }
 
         return urlRequest(from: request).publisher
-            .flatMap { self.session.dataTaskPublisher(for: $0).mapError { .request($0) } }
+            .flatMap { self.session.dataTaskPublisher(for: $0).mapError { .request(.urlError($0)) } }
             .flatMap(decode(data:response:))
             .catch(retryIfNeeded)
             .eraseToAnyPublisher()
@@ -109,15 +109,7 @@ extension Deluge {
         }
 
         if let error = dict["error"] as? [String: Any] {
-            if let code = error["code"] as? Int, code == 1 {
-                return Fail(error: .unauthenticated).eraseToAnyPublisher()
-            }
-
-            if isTorrentAlreadyAddedException(message: error["message"] as? String) {
-                return Fail(error: .torrentAlreadyAddedException).eraseToAnyPublisher()
-            }
-
-            return Fail(error: .serverError(message: error["message"] as? String)).eraseToAnyPublisher()
+            return Fail(error: .serverError(.fromAPIError(error))).eraseToAnyPublisher()
         }
 
         return Just(dict).setFailureType(to: DelugeError.self).eraseToAnyPublisher()
@@ -149,20 +141,27 @@ extension Deluge {
         request: Request<Value>,
         authenticateIfNeeded: Bool
     ) async throws (DelugeError) -> [String: Any] {
+        let urlRequest = try urlRequest(from: request).get()
+        
+        let data: Data
+        let response: URLResponse
         do {
-            let (data, response) = try await session.data(for: urlRequest(from: request).get())
+            (data, response) = try await session.data(for: urlRequest)
+        } catch let error as URLError {
+            throw .request(.urlError(error))
+        } catch {
+            throw .request(.unknown(error))
+        }
+        
+        do {
             return try decode(data: data, response: response)
-        } catch let error as DelugeError {
-            guard case .unauthenticated = error, authenticateIfNeeded else {
+        } catch {
+            guard case .serverError(.unauthenticated) = error, authenticateIfNeeded else {
                 throw error
             }
 
             try await self.request(.authenticate)
             return try await send(request: request, authenticateIfNeeded: false)
-        } catch let error as URLError {
-            throw .request(error)
-        } catch {
-            throw .unknownRequestError(error)
         }
     }
 
@@ -181,37 +180,10 @@ extension Deluge {
         }
 
         if let error = dict["error"] as? [String: Any] {
-            if let code = error["code"] as? Int, code == 1 {
-                throw .unauthenticated
-            }
-
-            if isTorrentAlreadyAddedException(message: error["message"] as? String) {
-                throw .torrentAlreadyAddedException
-            }
-
-            throw .serverError(message: error["message"] as? String)
+            throw .serverError(.fromAPIError(error))
         }
 
         return dict
-    }
-
-    private func isTorrentAlreadyAddedException(message: String?) -> Bool {
-        // There is a bug in deluge that adding a torrent that exists will return a stacktrace of a python exception...
-        // Yes really... so instead we'll just try to add the same torrents as the combine test and ignore the error
-        // if it looks like the addtorrent exception
-        // https://dev.deluge-torrent.org/ticket/3507
-        guard let message else {
-            return false
-        }
-
-        let parts = [
-            // "<class 'deluge.error.AddTorrentError'>: Torrent already in session",
-            "Torrent already in session",
-            // "<class 'deluge.error.WrappedException'>: type <class 'deluge.error.AddTorrentError'> not handled",
-            "deluge.error.AddTorrentError",
-        ]
-
-        return parts.map { message.contains($0) }.contains(true)
     }
 }
 

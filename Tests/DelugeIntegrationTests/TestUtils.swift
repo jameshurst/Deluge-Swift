@@ -33,7 +33,7 @@ func ensureTorrentAdded(fileURL: URL, to client: Deluge, file: StaticString = #f
         _ = try await client.request(.add(fileURL: fileURL))
     } catch {
         switch error {
-        case .torrentAlreadyAddedException:
+        case .serverError(.torrentAlreadyInSession):
             return
         default:
             XCTFail(String(describing: error), file: file, line: line)
@@ -47,5 +47,5 @@ func ensureTorrentRemoved(
     file: StaticString = #file,
     line: UInt = #line
 ) async throws {
-    try await client.request(.remove(hashes: [hash], removeData: false))
+    _ = try await client.request(.remove(hashes: [hash], removeData: false))
 }
