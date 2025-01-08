@@ -7,17 +7,10 @@ public enum TorrentItem: Equatable, Decodable, Sendable {
 }
 
 struct TorrentTree: Decodable, Sendable {
-    enum TreeType: String, Decodable {
-        case file
-        case directory = "dir"
-    }
-
     enum CodingKeys: CodingKey {
-        case type
         case contents
     }
 
-    let type: TreeType
     let contents: [String: TreeItem]
 
     func toItems() -> [TorrentItem] {
@@ -29,7 +22,6 @@ struct TorrentTree: Decodable, Sendable {
 
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        type = try container.decode(TreeType.self, forKey: .type)
         contents = try container.decode([String: TreeItem].self, forKey: .contents)
     }
 

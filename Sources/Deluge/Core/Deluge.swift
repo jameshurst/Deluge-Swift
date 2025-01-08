@@ -15,9 +15,6 @@ public typealias DelugeClient = Client<DelugeResponseError>
 
 /// A Deluge JSON-RPC API client.
 public final class Deluge: Sendable {
-    /// The `URLSession` to use for requests.
-    private let session: URLSession = .shared
-
     /// The URL of the Deluge server.
     let baseURL: URL
     /// The password used for authentication.
