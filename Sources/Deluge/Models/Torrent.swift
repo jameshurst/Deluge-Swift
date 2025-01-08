@@ -1,7 +1,7 @@
 import Foundation
 
 /// A Deluge torrent.
-public struct Torrent: Equatable {
+public struct Torrent: Equatable, Decodable, Sendable {
     /// The date the torrent was added to the server.
     public var dateAdded: Date?
     /// The number of bytes downloaded for the torrent.
@@ -83,25 +83,25 @@ public struct Torrent: Equatable {
 
 public extension Torrent {
     /// The state of a torrent.
-    enum State: Equatable {
+    enum State: String, Equatable, Decodable, Sendable {
         /// The torrent is downloading.
-        case downloading
+        case downloading = "Downloading"
         /// The torrent is seeding.
-        case seeding
+        case seeding = "Seeding"
         /// The torrent is paused.
-        case paused
+        case paused = "Paused"
         /// The torrent data is being verified.
-        case checking
+        case checking = "Checking"
         /// The torrent is in the queue.
-        case queued
+        case queued = "Queued"
         /// The torrent has an error.
-        case error
+        case error = "Error"
     }
 }
 
 public extension Torrent {
     /// The keys used to request torrent properties.
-    enum PropertyKeys: String, CaseIterable {
+    enum PropertyKeys: String, CodingKey, CaseIterable {
         /// Requests the key `time_added` from the API.
         case dateAdded = "time_added"
         /// Requests the key `total_done` from the API.

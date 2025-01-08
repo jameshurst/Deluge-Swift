@@ -1,13 +1,13 @@
 import Deluge
 import Foundation
-import XCTest
+import Testing
 
 #if canImport(Combine)
     import Combine
 #endif
 
 func urlForResource(named resourceName: String) -> URL {
-    URL(fileURLWithPath: #file)
+    URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()
         .appendingPathComponent("Resources", isDirectory: true)
         .appendingPathComponent(resourceName)
@@ -33,17 +33,32 @@ func urlForResource(named resourceName: String) -> URL {
     }
 #endif
 
-func ensureTorrentAdded(fileURL: URL, to client: Deluge, file: StaticString = #file, line: UInt = #line) async throws {
+func ensureTorrentAdded(
+    fileURL: URL,
+    to client: Deluge,
+    fileID: String = #fileID,
+    filePath: String = #filePath,
+    line: Int = #line,
+    column: Int = #column
+) async throws {
     do {
         _ = try await client.request(.add(fileURL: fileURL))
     } catch {
         switch error {
-        case .serverError(.torrentAlreadyInSession):
+        case .response(.torrentAlreadyInSession):
             return
         default:
-            XCTFail(String(describing: error), file: file, line: line)
+            Issue.record(
+                error,
+                sourceLocation: SourceLocation(fileID: fileID, filePath: filePath, line: line, column: column)
+            )
         }
     }
+}
+
+func isPluginEnabled(_ string: String, on client: Deluge) async throws -> Bool {
+    let plugins = try await client.request(.plugins)
+    return plugins.enabled.contains(where: { $0.name == string })
 }
 
 func ensureTorrentRemoved(
@@ -52,5 +67,9 @@ func ensureTorrentRemoved(
     file: StaticString = #file,
     line: UInt = #line
 ) async throws {
-    _ = try await client.request(.remove(hashes: [hash], removeData: false))
+    try await client.request(.remove(hashes: [hash], removeData: false))
+}
+
+func ensurePluginEnabled(_ plugin: Plugin, from client: Deluge) async throws -> Bool {
+    try await client.request(.enablePlugin(plugin))
 }
