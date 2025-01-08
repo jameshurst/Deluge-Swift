@@ -1,3 +1,5 @@
+import APIClient
+
 public extension Request {
     /// Sets the label for a torrent.
     ///
@@ -6,7 +8,7 @@ public extension Request {
     /// - Parameters:
     ///   - hash: The hash of the torrent whose label should be set.
     ///   - label: The name of the label to set.
-    static func setLabel(hash: String, label: String) -> Request<Void> {
+    static func setLabel(hash: String, label: String) -> Request<EmptyResponse> {
         .init(method: "label.set_torrent", args: [hash, label])
     }
 }

@@ -11,11 +11,11 @@ public enum DelugeError: Error {
     /// The server returned an unexpected response.
     case unexpectedResponse
     /// An error returned by the server.
-    case serverError(DelugeServerError)
+    case serverError(DelugeResponseError)
 }
 
 /// An error that occurred during a network request.
-public enum DelugeRequestError: Sendable {
+public enum DelugeRequestError: Error, Sendable {
     /// A typed `URLError`.
     case urlError(URLError)
     // Needed because `URLSession.data(for:)` throws `any Error`, sigh...
@@ -24,34 +24,35 @@ public enum DelugeRequestError: Sendable {
 }
 
 /// An error returned by the server.
-public enum DelugeServerError: Sendable {
+public enum DelugeResponseError: Error, Sendable {
     /// An error containing a message.
     case message(String?)
     /// The provided authentication was not valid.
     case unauthenticated
     /// The added torrent is already in the session.
     case torrentAlreadyInSession
+    /// Until everything uses typed throws... this has to be here
+    /// An untyped `Error`
+    case unknown(Error)
 }
 
-extension DelugeServerError {
-    static func fromAPIError(_ error: [String: Any]) -> Self {
-        switch (error["code"] as? Int).map(DelugeErrorCode.init) {
+extension DelugeResponseError {
+    static func fromAPIError<Value: Decodable>(_ error: Deluge.Response<Value>.Error) -> Self {
+        switch DelugeErrorCode(rawValue: error.code) {
         case .unauthenticated:
             return .unauthenticated
         case .rpcRequestErrorAsync:
             // There is a bug in deluge that adding a torrent that exists will return a stacktrace of a python
             // exception.
             // https://dev.deluge-torrent.org/ticket/3507
-            if let message = error["message"] as? String {
-                if message.contains("<class \'deluge.error.AddTorrentError\'>: Torrent already in session") {
-                    return .torrentAlreadyInSession
-                }
+            if error.message.contains("<class \'deluge.error.AddTorrentError\'>: Torrent already in session") {
+                return .torrentAlreadyInSession
             }
         case _:
             break
         }
 
-        return .message(error["message"] as? String)
+        return .message(error.message)
     }
 }
 

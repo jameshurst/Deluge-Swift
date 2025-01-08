@@ -1,5 +1,5 @@
 /// A Deluge torrent tracker.
-public struct Tracker: Equatable, Sendable {
+public struct Tracker: Equatable, Decodable, Sendable {
     /// The tracker URL.
     public var url: String
 

@@ -1,35 +1,25 @@
 import Deluge
-import XCTest
+import Testing
 
 #if canImport(Combine)
     import Combine
 #endif
 
+@Suite("Label Requests", .serialized)
 class LabelRequestsTests: IntegrationTestCase {
     #if canImport(Combine)
-        func test_setLabel() {
+        @Test()
+        func test_setLabel() async throws {
+            try #require(try await ensurePluginEnabled(.label, from: client), "Label plugin could not be enabled")
             let url = urlForResource(named: TestConfig.torrent1)
-            let expectation = self.expectation(description: #function)
-            expectation.expectedFulfillmentCount = 2
-            ensureTorrentAdded(fileURL: url, to: client)
-                .flatMap { _ in self.client.request(.setLabel(hash: TestConfig.torrent1Hash, label: "")) }
-                .sink(
-                    receiveCompletion: { completion in
-                        if case let .failure(error) = completion {
-                            XCTFail(String(describing: error))
-                        }
-                        expectation.fulfill()
-                    },
-                    receiveValue: { _ in
-                        expectation.fulfill()
-                    }
-                )
-                .store(in: &cancellables)
-            waitForExpectations(timeout: TestConfig.timeout)
+            try await ensureTorrentAdded(fileURL: url, to: client)
+            for try await _ in client.request(.setLabel(hash: TestConfig.torrent1Hash, label: "")).values {}
         }
     #endif
 
+    @Test()
     func test_setLabel_concurrency() async throws {
+        try #require(try await ensurePluginEnabled(.label, from: client), "Label plugin could not be enabled")
         let url = urlForResource(named: TestConfig.torrent1)
         try await ensureTorrentAdded(fileURL: url, to: client)
         try await client.request(.setLabel(hash: TestConfig.torrent1Hash, label: ""))

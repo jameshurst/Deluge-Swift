@@ -1,5 +1,5 @@
 /// A priority value for Deluge downloads.
-public struct Priority: RawRepresentable, Equatable, Hashable, Sendable {
+public struct Priority: RawRepresentable, Equatable, Hashable, Decodable, Sendable {
     public typealias RawValue = Int
 
     public let rawValue: Int
