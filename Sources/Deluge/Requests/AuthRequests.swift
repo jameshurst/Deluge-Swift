@@ -14,7 +14,7 @@ public extension Request {
             },
             transform: { response in
                 let authenticated = response["result"] as? Bool ?? false
-                guard authenticated else { return .failure(.unauthenticated) }
+                guard authenticated else { return .failure(.serverError(.unauthenticated)) }
                 return .success(())
             }
         )

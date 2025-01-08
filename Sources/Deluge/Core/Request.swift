@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 
 /// A definition for a Deluge JSON-RPC request.

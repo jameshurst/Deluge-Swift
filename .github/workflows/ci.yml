@@ -7,11 +7,11 @@ on:
     branches: [ master ]
 
 env:
-  DEVELOPER_DIR: /Applications/Xcode_15.1.app/Contents/Developer
+  DEVELOPER_DIR: /Applications/Xcode_16.app/Contents/Developer
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-15
 
     steps:
     - uses: actions/checkout@v2
@@ -21,9 +21,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          tools/.bin
-          tools/.mint
-        key: ${{ runner.os }}-${{ hashFiles('tools/mint') }}-${{ hashFiles('Mintfile') }}
+            .tools/.bin
+        key: ${{ runner.os }}-${{ hashFiles('tools/*.sh') }}
 
     - name: Run CI script
       run: ./scripts/run_ci.sh
