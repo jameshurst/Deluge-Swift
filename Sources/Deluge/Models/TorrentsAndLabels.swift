@@ -1,10 +1,12 @@
 import Foundation
 
 public struct TorrentsAndLabels: Decodable, Sendable {
+    public let connected: Bool
     public let torrents: [Torrent]
     public let labels: [Label]
 
     public enum CodingKeys: CodingKey {
+        case connected
         case torrents
         case labels
     }
@@ -13,6 +15,7 @@ public struct TorrentsAndLabels: Decodable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let torrentsDictionary = try container.decode([String: UnhashedTorrent].self, forKey: .torrents)
 
+        connected = try container.decode(Bool.self, forKey: .connected)
         torrents = torrentsDictionary.map { .init(hash: $0.key, torrent: $0.value) }
         labels = try container.decodeIfPresent([Label].self, forKey: .labels) ?? []
     }
