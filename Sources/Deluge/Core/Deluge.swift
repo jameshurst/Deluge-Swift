@@ -10,6 +10,7 @@ import Foundation
     import FoundationNetworking
 #endif
 
+/// Convenience typealias for the Deluge client.
 public typealias DelugeClient = Client<DelugeResponseError>
 
 /// A Deluge JSON-RPC API client.

@@ -2,10 +2,18 @@ import APIClient
 import Foundation
 
 public extension Request {
+    /// Creates a new request with the given method, arguments, and optional transform.
+    ///
+    /// This method is here to mirror the previous initializer for the Deluge Request.
+    /// It will be deprecated in the future.
+    ///
+    /// - Parameters:
+    ///   - method: The method to call.
+    ///   - args: The arguments to pass to the method.
+    ///   - transform: An optional transform to apply to the response data.
     init(
         method: String,
         args: [Any],
-        autenticateIfNeeded: Bool = true,
         transform: ((Data) throws -> Value)? = nil
     ) {
         self = .init(

@@ -111,12 +111,12 @@ public extension Request {
 
                 var errors = [RemoveTorrentError]()
                 for result in response.result {
-                    assert(result.count % 2 == 0)
+                    assert(result.count.isMultiple(of: 2))
 
-                    var i = 0
-                    while i < result.count {
-                        errors.append(.init(hash: result[i], error: result[i + 1]))
-                        i += 2
+                    var index = 0
+                    while index < result.count {
+                        errors.append(.init(hash: result[index], error: result[index + 1]))
+                        index += 2
                     }
                 }
 
@@ -148,10 +148,20 @@ public extension Request {
         ])
     }
 
+    /// Enables a plugin.
+    ///
+    /// RPC Method: `core.enable_plugin`
+    ///
+    /// - Parameter plugin: The plugin to enable.
     static func enablePlugin(_ plugin: Plugin) -> Request<Bool> {
         .init(method: "core.enable_plugin", args: [plugin.name])
     }
 
+    /// Disables a plugin.
+    ///
+    /// RPC Method: `core.disable_plugin`
+    ///
+    /// - Parameter plugin: The plugin to disable.
     static func disablePlugin(_ plugin: Plugin) -> Request<Bool> {
         .init(method: "core.disable_plugin", args: [plugin.name])
     }

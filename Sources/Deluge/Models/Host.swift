@@ -2,6 +2,7 @@ import Foundation
 
 /// A Deluge host
 public struct Host: Equatable, Decodable, Sendable {
+    // swiftlint:disable:next type_name
     public typealias ID = String
 
     /// The ID of the host.

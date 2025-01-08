@@ -48,7 +48,10 @@ func ensureTorrentAdded(
         case .response(.torrentAlreadyInSession):
             return
         default:
-            Issue.record(error, sourceLocation: SourceLocation(fileID: fileID, filePath: filePath, line: line, column: column))
+            Issue.record(
+                error,
+                sourceLocation: SourceLocation(fileID: fileID, filePath: filePath, line: line, column: column)
+            )
         }
     }
 }

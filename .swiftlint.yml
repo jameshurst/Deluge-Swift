@@ -2,13 +2,6 @@ included:
   - Sources
   - Tests
 
-file_name:
-  excluded:
-    - AuthRequests.swift
-    - CoreRequests.swift
-    - LabelRequests.swift
-    - WebRequests.swift
-
 # -- MASTER -- #
 
 analyzer_rules:
@@ -19,6 +12,8 @@ disabled_rules:
   - file_length
   - function_body_length
   - type_body_length
+  - file_name
+  - nesting
 
 opt_in_rules:
   - array_init
@@ -41,7 +36,6 @@ opt_in_rules:
   - fallthrough
   - fatal_error_message
   - file_header
-  - file_name
   - first_where
   - flatmap_over_map_reduce
   - identical_operands
