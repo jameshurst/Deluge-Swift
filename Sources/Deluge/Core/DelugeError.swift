@@ -15,7 +15,7 @@ public enum DelugeError: Error {
 }
 
 /// An error that occurred during a network request.
-public enum DelugeRequestError {
+public enum DelugeRequestError: Sendable {
     /// A typed `URLError`.
     case urlError(URLError)
     // Needed because `URLSession.data(for:)` throws `any Error`, sigh...
@@ -24,7 +24,7 @@ public enum DelugeRequestError {
 }
 
 /// An error returned by the server.
-public enum DelugeServerError {
+public enum DelugeServerError: Sendable {
     /// An error containing a message.
     case message(String?)
     /// The provided authentication was not valid.

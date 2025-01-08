@@ -1,13 +1,13 @@
-// swift-tools-version:5.3
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
     name: "Deluge",
     platforms: [
-        .iOS(.v13),
-        .tvOS(.v13),
-        .macOS(.v10_15),
+        .iOS(.v18),
+        .tvOS(.v18),
+        .macOS(.v15),
     ],
     products: [
         .library(name: "Deluge", targets: ["Deluge"]),

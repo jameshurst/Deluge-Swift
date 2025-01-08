@@ -1,7 +1,7 @@
 import Foundation
 
 /// A Deluge torrent.
-public struct Torrent: Equatable {
+public struct Torrent: Equatable, Sendable {
     /// The date the torrent was added to the server.
     public var dateAdded: Date?
     /// The number of bytes downloaded for the torrent.
@@ -83,7 +83,7 @@ public struct Torrent: Equatable {
 
 public extension Torrent {
     /// The state of a torrent.
-    enum State: Equatable {
+    enum State: Equatable, Sendable {
         /// The torrent is downloading.
         case downloading
         /// The torrent is seeding.

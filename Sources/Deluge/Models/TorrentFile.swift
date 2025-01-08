@@ -1,5 +1,5 @@
 /// A Deluge torrent file.
-public struct TorrentFile: Equatable {
+public struct TorrentFile: Equatable, Sendable {
     /// The index of the file.
     public var index: Int
     /// The name of the file.
