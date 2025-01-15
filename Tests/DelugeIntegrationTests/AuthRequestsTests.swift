@@ -6,7 +6,7 @@ import Testing
 #endif
 
 @Suite("Authentication Requests", .serialized)
-class AuthRequestsTests: IntegrationTestCase {
+struct AuthRequestsTests {
     #if canImport(Combine)
         @Test
         func test_authenticate() async throws {

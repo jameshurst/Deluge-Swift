@@ -19,12 +19,12 @@ public extension Request {
         self = .init(
             method: .post,
             path: nil,
-            body: delugeFormatBody(method, parameters: args),
-            transform: { try Self.handleTransform($0, injected: transform) }
+            body: try! delugeFormatBody(method, parameters: args),
+            transform: { try Self.handleTransform($0, response: $1, injected: transform) }
         )
     }
 
-    private static func handleTransform(_ data: Data, injected: ((Data) throws -> Value)?) throws -> Value {
+    private static func handleTransform(_ data: Data, response: HTTPURLResponse, injected: ((Data) throws -> Value)?) throws -> Value {
         do {
             if let injected {
                 let transformed = try injected(data)
@@ -46,10 +46,8 @@ public extension Request {
     }
 }
 
-private func delugeFormatBody(_ method: String, parameters: [Any]) -> [String: Any] {
-    [
-        "id": 1,
-        "method": method,
-        "params": parameters,
-    ]
+private func delugeFormatBody(_ method: String, parameters: [Any]) throws -> DataBody {
+    let object: [String: Any] = ["id": 1, "method": method, "params": parameters]
+    let data = try JSONSerialization.data(withJSONObject: object)
+    return DataBody(data)
 }

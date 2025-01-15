@@ -1,5 +1,6 @@
 import APIClient
 import Foundation
+import Logging
 
 #if canImport(Combine)
     import Combine
@@ -25,11 +26,24 @@ public final class Deluge: Sendable {
     /// The underlying API Client.
     private let client: DelugeClient
 
+    private let logger: Logger
+
     /// Creates a Deluge client to interact with the given server URL.
     /// - Parameters:
     ///   - baseURL: The URL of the Deluge server.
     ///   - password: The password used for authentication.
     public init(baseURL: URL, password: String, basicAuthentication: BasicAuthentication? = nil) {
+        LoggingSystem.bootstrap { identifier in
+            var logger = StreamLogHandler.standardOutput(label: identifier)
+#if DEBUG
+            logger.logLevel = .debug
+#else
+            logger.logLevel = .info
+#endif
+            return logger
+        }
+        logger = Logger(label: "Deluge")
+
         self.baseURL = baseURL
         self.password = password
         self.basicAuthentication = basicAuthentication

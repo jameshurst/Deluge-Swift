@@ -7,7 +7,7 @@ import Testing
 #endif
 
 @Suite("Core Requests", .serialized)
-class CoreRequestsTests: IntegrationTestCase {
+struct CoreRequestsTests {
     #if canImport(Combine)
         @Test
         func test_addFileURL() async throws {

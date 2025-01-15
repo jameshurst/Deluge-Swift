@@ -7,7 +7,7 @@ import Testing
 #endif
 
 @Suite("Bad Method", .serialized)
-class BadMethodTests: IntegrationTestCase {
+struct BadMethodTests {
     #if canImport(Combine)
         @Test
         func test_badMethod() async {

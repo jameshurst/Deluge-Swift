@@ -6,7 +6,7 @@ import Testing
 #endif
 
 @Suite("Label Requests", .serialized)
-class LabelRequestsTests: IntegrationTestCase {
+struct LabelRequestsTests {
     #if canImport(Combine)
         @Test()
         func test_setLabel() async throws {

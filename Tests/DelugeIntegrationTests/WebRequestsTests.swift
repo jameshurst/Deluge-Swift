@@ -6,7 +6,7 @@ import Testing
 #endif
 
 @Suite("Web Requests")
-class WebRequestsTests: IntegrationTestCase {
+struct WebRequestsTests {
     #if canImport(Combine)
         @Test
         func test_updateUI() async throws {

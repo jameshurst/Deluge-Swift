@@ -6,7 +6,7 @@ import Testing
 #endif
 
 @Suite("Set Option Requests", .serialized)
-class SetOptionTests: IntegrationTestCase {
+struct SetOptionTests {
     #if canImport(Combine)
         @Test
         func test_filePriorities() async throws {
