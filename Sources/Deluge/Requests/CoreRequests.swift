@@ -1,3 +1,4 @@
+import APIClient
 import Foundation
 
 public extension Request {
@@ -13,11 +14,7 @@ public extension Request {
         let data = FileManager.default.contents(atPath: fileURL.path)?.base64EncodedString() ?? ""
         return .init(
             method: "core.add_torrent_file",
-            args: [fileName, data, [String: Any]()],
-            transform: { response in
-                guard let hash = response["result"] as? String else { return .failure(.unexpectedResponse) }
-                return .success(hash)
-            }
+            args: [fileName, data, [String: Any]()]
         )
     }
 
@@ -26,7 +23,7 @@ public extension Request {
     /// RPC Method: `core.add_torrent_files`
     ///
     /// - Parameter fileURLs: The URLs of the local torrent files to add.
-    static func add(fileURLs: [URL]) -> Request<Void> {
+    static func add(fileURLs: [URL]) -> Request<EmptyResponse> {
         let files = fileURLs.map { url -> [Any] in
             let fileName = url.lastPathComponent
             let data = FileManager.default.contents(atPath: url.path)?.base64EncodedString() ?? ""
@@ -45,11 +42,7 @@ public extension Request {
     static func add(magnetURL: URL) -> Request<String> {
         .init(
             method: "core.add_torrent_magnet",
-            args: [magnetURL.absoluteString, [String: Any]()],
-            transform: { response in
-                guard let hash = response["result"] as? String else { return .failure(.unexpectedResponse) }
-                return .success(hash)
-            }
+            args: [magnetURL.absoluteString, [String: Any]()]
         )
     }
 
@@ -58,7 +51,7 @@ public extension Request {
     /// RPC Method: `core.add_torrent_url`
     ///
     /// - Parameter url: The URL of the torrent file to add.
-    static func add(url: URL) -> Request<Void> {
+    static func add(url: URL) -> Request<EmptyResponse> {
         .init(method: "core.add_torrent_url", args: [url.absoluteString, [String: Any]()])
     }
 
@@ -67,7 +60,7 @@ public extension Request {
     /// RPC Method: `core.force_reannounce`
     ///
     /// - Parameter hashes: The torrent hashes to force a reannounce on.
-    static func reannounce(hashes: [String]) -> Request<Void> {
+    static func reannounce(hashes: [String]) -> Request<EmptyResponse> {
         .init(method: "core.force_reannounce", args: [hashes])
     }
 
@@ -76,7 +69,7 @@ public extension Request {
     /// RPC Method: `core.force_recheck`
     ///
     /// - Parameter hashes: The torrent hashes to recheck.
-    static func recheck(hashes: [String]) -> Request<Void> {
+    static func recheck(hashes: [String]) -> Request<EmptyResponse> {
         .init(method: "core.force_recheck", args: [hashes])
     }
 
@@ -87,7 +80,7 @@ public extension Request {
     /// - Parameters:
     ///   - hashes: The torrent hashes whose storage should be moved.
     ///   - path: The new path where the torrents' data should be stored.
-    static func move(hashes: [String], path: String) -> Request<Void> {
+    static func move(hashes: [String], path: String) -> Request<EmptyResponse> {
         .init(method: "core.move_storage", args: [hashes, path])
     }
 
@@ -96,7 +89,7 @@ public extension Request {
     /// RPC Method: `core.pause_torrents`
     ///
     /// - Parameter hashes: The torrent hashes to pause.
-    static func pause(hashes: [String]) -> Request<Void> {
+    static func pause(hashes: [String]) -> Request<EmptyResponse> {
         .init(method: "core.pause_torrents", args: [hashes])
     }
 
@@ -109,15 +102,25 @@ public extension Request {
     /// - Parameters:
     ///   - hashes: The torrent hashes to remove.
     ///   - removeData: Whether the torrents' data should be removed.
-    static func remove(hashes: [String], removeData: Bool) -> Request<[(hash: String, message: String)]> {
+    static func remove(hashes: [String], removeData: Bool) -> Request<[RemoveTorrentError]> {
         .init(
             method: "core.remove_torrents",
             args: [hashes, removeData],
-            transform: { response in
-                guard let errors = response["result"] as? [[String]] else { return .failure(.unexpectedResponse) }
-                return .success(errors.map { error -> (String, String) in
-                    (error.first ?? "", error.count > 1 ? error[1] : "")
-                })
+            transform: { data in
+                let response = try JSONDecoder().decode(Deluge.Response<[[String]]>.self, from: data)
+
+                var errors = [RemoveTorrentError]()
+                for result in response.result {
+                    assert(result.count.isMultiple(of: 2))
+
+                    var index = 0
+                    while index < result.count {
+                        errors.append(.init(hash: result[index], error: result[index + 1]))
+                        index += 2
+                    }
+                }
+
+                return errors
             }
         )
     }
@@ -127,7 +130,7 @@ public extension Request {
     /// RPC Method: `core.resume_torrents`
     ///
     /// - Parameter hashes: The torrent hashes to resume.
-    static func resume(hashes: [String]) -> Request<Void> {
+    static func resume(hashes: [String]) -> Request<EmptyResponse> {
         .init(method: "core.resume_torrents", args: [hashes])
     }
 
@@ -138,10 +141,28 @@ public extension Request {
     /// - Parameters:
     ///   - hashes: The torrent hashes to update.
     ///   - options: The options to set on the torrents.
-    static func setOptions(hashes: [String], options: [TorrentOption]) -> Request<Void> {
+    static func setOptions(hashes: [String], options: [TorrentOption]) -> Request<EmptyResponse> {
         .init(method: "core.set_torrent_options", args: [
             hashes,
             options.reduce(into: [String: Any]()) { $0[$1.key] = $1.value },
         ])
+    }
+
+    /// Enables a plugin.
+    ///
+    /// RPC Method: `core.enable_plugin`
+    ///
+    /// - Parameter plugin: The plugin to enable.
+    static func enablePlugin(_ plugin: Plugin) -> Request<Bool> {
+        .init(method: "core.enable_plugin", args: [plugin.name])
+    }
+
+    /// Disables a plugin.
+    ///
+    /// RPC Method: `core.disable_plugin`
+    ///
+    /// - Parameter plugin: The plugin to disable.
+    static func disablePlugin(_ plugin: Plugin) -> Request<Bool> {
+        .init(method: "core.disable_plugin", args: [plugin.name])
     }
 }

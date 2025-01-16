@@ -1,56 +1,41 @@
 import Deluge
 import Foundation
-import XCTest
-
-#if canImport(Combine)
-    import Combine
-#endif
+import Testing
 
 func urlForResource(named resourceName: String) -> URL {
-    URL(fileURLWithPath: #file)
+    URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent()
         .appendingPathComponent("Resources", isDirectory: true)
         .appendingPathComponent(resourceName)
 }
 
-#if canImport(Combine)
-    func ensureTorrentAdded(fileURL: URL, to client: Deluge) -> AnyPublisher<Void, DelugeError> {
-        client.request(.add(fileURL: fileURL))
-            .map { _ in () }
-            .replaceError(with: ())
-            .setFailureType(to: DelugeError.self)
-            .eraseToAnyPublisher()
-    }
-
-    // When migrated to Swift Testing: tests that use this may stomp each other
-    // figure out how to fix that (or switch to swift testing???)
-    func ensureTorrentRemoved(hash: String, from client: Deluge) -> AnyPublisher<Void, DelugeError> {
-        client.request(.remove(hashes: [hash], removeData: false))
-            .map { _ in () }
-            .replaceError(with: ())
-            .setFailureType(to: DelugeError.self)
-            .eraseToAnyPublisher()
-    }
-#endif
-
-func ensureTorrentAdded(fileURL: URL, to client: Deluge, file: StaticString = #file, line: UInt = #line) async throws {
+func ensureTorrentAdded(
+    fileURL: URL,
+    to client: Deluge,
+    fileID: String = #fileID,
+    filePath: String = #filePath,
+    line: Int = #line,
+    column: Int = #column
+) async throws {
     do {
         _ = try await client.request(.add(fileURL: fileURL))
     } catch {
         switch error {
-        case .serverError(.torrentAlreadyInSession):
+        case .response(.torrentAlreadyInSession):
             return
         default:
-            XCTFail(String(describing: error), file: file, line: line)
+            Issue.record(
+                error,
+                sourceLocation: SourceLocation(fileID: fileID, filePath: filePath, line: line, column: column)
+            )
         }
     }
 }
 
-func ensureTorrentRemoved(
-    hash: String,
-    from client: Deluge,
-    file: StaticString = #file,
-    line: UInt = #line
-) async throws {
-    _ = try await client.request(.remove(hashes: [hash], removeData: false))
+func ensureTorrentRemoved(hash: String, from client: Deluge) async throws {
+    try await client.request(.remove(hashes: [hash], removeData: false))
+}
+
+func ensurePluginEnabled(_ plugin: Plugin, from client: Deluge) async throws -> Bool {
+    try await client.request(.enablePlugin(plugin))
 }

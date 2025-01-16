@@ -1,0 +1,24 @@
+{
+  "originHash" : "c01a0a14d5860da3ed21eed503519e114fce5973a11225d84086490e43a8418b",
+  "pins" : [
+    {
+      "identity" : "swift-api-client",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/NinjaLikesCheez/swift-api-client.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "01c44a41b7c004459fa5183c8b9ed4731047dcd7"
+      }
+    },
+    {
+      "identity" : "swift-log",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-log.git",
+      "state" : {
+        "revision" : "96a2f8a0fa41e9e09af4585e2724c4e825410b91",
+        "version" : "1.6.2"
+      }
+    }
+  ],
+  "version" : 3
+}

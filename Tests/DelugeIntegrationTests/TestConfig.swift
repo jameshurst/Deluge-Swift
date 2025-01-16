@@ -2,10 +2,6 @@ import Deluge
 import Foundation
 
 enum TestConfig {
-    static var timeout: TimeInterval {
-        ProcessInfo.processInfo.environment["TIMEOUT"].flatMap(TimeInterval.init) ?? 2
-    }
-
     static let serverURL = URL(string: "http://localhost:8112")!
     static let serverPassword = "deluge"
 

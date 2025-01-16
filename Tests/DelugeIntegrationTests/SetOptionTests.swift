@@ -1,39 +1,26 @@
 import Deluge
-import XCTest
+import Testing
 
 #if canImport(Combine)
     import Combine
 #endif
 
-class SetOptionTests: IntegrationTestCase {
+@Suite("Set Option Requests", .serialized)
+struct SetOptionTests {
     #if canImport(Combine)
-        func test_filePriorities() {
+        @Test
+        func test_filePriorities() async throws {
             let url = urlForResource(named: TestConfig.torrent1)
-            let expectation = self.expectation(description: #function)
-            expectation.expectedFulfillmentCount = 2
-            ensureTorrentAdded(fileURL: url, to: client)
-                .flatMap { _ in
-                    self.client.request(.setOptions(
-                        hashes: [TestConfig.torrent1Hash],
-                        options: [.filePriorities([.disabled])]
-                    ))
-                }
-                .sink(
-                    receiveCompletion: { completion in
-                        if case let .failure(error) = completion {
-                            XCTFail(String(describing: error))
-                        }
-                        expectation.fulfill()
-                    },
-                    receiveValue: { _ in
-                        expectation.fulfill()
-                    }
-                )
-                .store(in: &cancellables)
-            waitForExpectations(timeout: TestConfig.timeout)
+            try await ensureTorrentAdded(fileURL: url, to: client)
+            let values = client.request(
+                .setOptions(hashes: [TestConfig.torrent1Hash], options: [.filePriorities([.disabled])])
+            ).values
+
+            for try await _ in values {}
         }
     #endif
 
+    @Test
     func test_filePriorities_concurrency() async throws {
         let url = urlForResource(named: TestConfig.torrent1)
         try await ensureTorrentAdded(fileURL: url, to: client)

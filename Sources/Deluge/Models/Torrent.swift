@@ -1,7 +1,7 @@
 import Foundation
 
 /// A Deluge torrent.
-public struct Torrent: Equatable {
+public struct Torrent: Equatable, Decodable, Sendable {
     /// The date the torrent was added to the server.
     public var dateAdded: Date?
     /// The number of bytes downloaded for the torrent.
@@ -83,25 +83,25 @@ public struct Torrent: Equatable {
 
 public extension Torrent {
     /// The state of a torrent.
-    enum State: Equatable {
+    enum State: String, Equatable, Decodable, Sendable {
         /// The torrent is downloading.
-        case downloading
+        case downloading = "Downloading"
         /// The torrent is seeding.
-        case seeding
+        case seeding = "Seeding"
         /// The torrent is paused.
-        case paused
+        case paused = "Paused"
         /// The torrent data is being verified.
-        case checking
+        case checking = "Checking"
         /// The torrent is in the queue.
-        case queued
+        case queued = "Queued"
         /// The torrent has an error.
-        case error
+        case error = "Error"
     }
 }
 
 public extension Torrent {
     /// The keys used to request torrent properties.
-    enum PropertyKeys: String, CaseIterable {
+    enum PropertyKeys: String, CodingKey, CaseIterable {
         /// Requests the key `time_added` from the API.
         case dateAdded = "time_added"
         /// Requests the key `total_done` from the API.
@@ -136,55 +136,5 @@ public extension Torrent {
         case uploaded = "total_uploaded"
         /// Requests the key `upload_payload_rate` from the API.
         case uploadRate = "upload_payload_rate"
-    }
-}
-
-extension Torrent {
-    private static func state(for value: String) -> State? {
-        switch value {
-        case "Downloading":
-            return .downloading
-        case "Seeding":
-            return .seeding
-        case "Paused":
-            return .paused
-        case "Checking":
-            return .checking
-        case "Queued":
-            return .queued
-        case "Error":
-            return .error
-        default:
-            return nil
-        }
-    }
-
-    /// Initializes a torrent using a response dictionary.
-    /// - Parameters:
-    ///   - hash: The torrent's hash.
-    ///   - dictionary: The response dictionary for the torrent.
-    init(hash: String, dictionary: [String: Any]) {
-        func decode<Value>(_ propertyKey: PropertyKeys, _ type: Value.Type? = nil) -> Value? {
-            dictionary[propertyKey.rawValue] as? Value
-        }
-
-        dateAdded = decode(.dateAdded).map(Date.init(timeIntervalSince1970:))
-        downloaded = decode(.downloaded)
-        downloadPath = decode(.downloadPath)
-        downloadRate = decode(.downloadRate)
-        eta = decode(.eta)
-        self.hash = hash
-        label = decode(.label)
-        name = decode(.name)
-        peers = decode(.peers)
-        progress = decode(.progress).map { $0 / 100 }
-        seeds = decode(.seeds)
-        size = decode(.size)
-        state = decode(.state).flatMap(Self.state)
-        totalPeers = decode(.totalPeers)
-        totalSeeds = decode(.totalSeeds)
-        trackers = decode(.trackers, [[String: Any]].self).flatMap { $0.compactMap(Tracker.init) }
-        uploaded = decode(.uploaded)
-        uploadRate = decode(.uploadRate)
     }
 }
