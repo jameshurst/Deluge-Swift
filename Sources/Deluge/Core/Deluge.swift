@@ -1,4 +1,4 @@
-import APIClient
+@_exported import APIClient
 import Foundation
 import Logging
 
@@ -17,11 +17,11 @@ public typealias DelugeClient = Client<DelugeResponseError>
 /// A Deluge JSON-RPC API client.
 public final class Deluge: Sendable {
     /// The URL of the Deluge server.
-    let baseURL: URL
+    public let baseURL: URL
     /// The password used for authentication.
-    let password: String
+    public let password: String
     /// Basic authentication to be added to Authorization header.
-    let basicAuthentication: BasicAuthentication?
+    public let basicAuthentication: BasicAuthentication?
 
     /// The underlying API Client.
     private let client: DelugeClient
